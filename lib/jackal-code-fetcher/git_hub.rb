@@ -35,6 +35,9 @@ module Jackal
               :owner => payload.get(:data, :github, :repository, :name),
               :name => payload.get(:data, :github, :repository, :owner, :name),
               :reference => payload.get(:data, :github, :ref),
+              :commit_sha => payload.fetch(:data, :github, :head_commit, :id,
+                payload.get(:data, :github, :after)
+              ),
               :private => payload.get(:data, :github, :private),
               :url => payload.get(:data, :github, :repository, :url)
             )
