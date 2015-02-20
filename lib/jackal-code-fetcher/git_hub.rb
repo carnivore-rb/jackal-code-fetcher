@@ -11,7 +11,7 @@ module Jackal
         require 'git'
         require 'fileutils'
         require 'tmpdir'
-        FileUtils.mkdir_p(config.fetch(:working_directory, '/tmp'))
+        FileUtils.mkdir_p(config.fetch(:working_directory, '/tmp/jackal-code-fetcher'))
       end
 
       # Determine validity of message
@@ -20,7 +20,7 @@ module Jackal
       # @return [Truthy, Falsey]
       def valid?(message)
         super do |payload|
-          payload.get(:data, :github) &&
+          (payload.get(:data, :github, :head_commit, :id) || payload.get(:data, :github, :after)) &&
             !payload.get(:data, :code_fetcher, :asset)
         end
       end
