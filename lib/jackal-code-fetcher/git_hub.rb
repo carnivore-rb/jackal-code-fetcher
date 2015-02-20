@@ -32,8 +32,8 @@ module Jackal
         failure_wrap(message) do |payload|
           payload.set(:data, :code_fetcher, :info,
             Smash.new(
-              :owner => payload.get(:data, :github, :repository, :name),
-              :name => payload.get(:data, :github, :repository, :owner, :name),
+              :owner => payload.get(:data, :github, :repository, :owner, :name),
+              :name => payload.get(:data, :github, :repository, :name),
               :reference => payload.get(:data, :github, :ref),
               :commit_sha => payload.fetch(:data, :github, :head_commit, :id,
                 payload.get(:data, :github, :after)
