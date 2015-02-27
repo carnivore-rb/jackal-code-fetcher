@@ -36,8 +36,35 @@ module Jackal
       # @param message [Carnivore::Message]
       def execute(message)
         failure_wrap(message) do |payload|
-          store_reference(payload)
+          retried = false
+          begin
+            store_reference(payload)
+          rescue Git::GitExecuteError => e
+            unless(retried)
+              retried = true
+              delete_repository(payload)
+              error "Reference extraction from repository failed. Repository deleted and retrying. (Error: #{e.class} - #{e})"
+              retry
+            else
+              raise
+            end
+          end
           job_completed(:code_fetcher, payload, message)
+        end
+      end
+
+      # Delete local repository path
+      #
+      # @param payload [Smash]
+      # @return [TrueClass, FalseClass]
+      def delete_repository(payload)
+        path = repository_path(payload)
+        if(File.exists?(path))
+          warn "Deleting repository directory: #{path}"
+          FileUtils.rm_rf(path)
+          true
+        else
+          false
         end
       end
 
