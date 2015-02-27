@@ -10,8 +10,14 @@ module Jackal
         require 'uri'
         require 'git'
         require 'fileutils'
-        require 'tmpdir'
-        FileUtils.mkdir_p(config.fetch(:working_directory, '/tmp/jackal-code-fetcher'))
+      end
+
+      # @return [String] working directory
+      def working_directory
+        memoize(:working_directory, :direct) do
+          FileUtils.mkdir_p(path = config.fetch(:working_directory, '/tmp/jackal-code-fetcher'))
+          path
+        end
       end
 
       # Determine validity of message
@@ -20,7 +26,7 @@ module Jackal
       # @return [Truthy, Falsey]
       def valid?(message)
         super do |payload|
-          (payload.get(:data, :github, :head_commit, :id) || payload.get(:data, :github, :after)) &&
+          payload.get(:data, :code_fetcher, :info, :commit_sha) &&
             !payload.get(:data, :code_fetcher, :asset)
         end
       end
@@ -30,18 +36,6 @@ module Jackal
       # @param message [Carnivore::Message]
       def execute(message)
         failure_wrap(message) do |payload|
-          payload.set(:data, :code_fetcher, :info,
-            Smash.new(
-              :owner => payload.get(:data, :github, :repository, :owner, :name),
-              :name => payload.get(:data, :github, :repository, :name),
-              :reference => payload.get(:data, :github, :ref),
-              :commit_sha => payload.fetch(:data, :github, :head_commit, :id,
-                payload.get(:data, :github, :after)
-              ),
-              :private => payload.get(:data, :github, :repository, :private),
-              :url => payload.get(:data, :github, :repository, :url)
-            )
-          )
           store_reference(payload)
           job_completed(:code_fetcher, payload, message)
         end
@@ -79,7 +73,7 @@ module Jackal
       # @return [String] path
       def repository_path(payload)
         File.join(
-          config.fetch(:working_directory, '/tmp'),
+          working_directory,
           payload.get(:data, :code_fetcher, :info, :owner),
           payload.get(:data, :code_fetcher, :info, :name)
         )
@@ -119,13 +113,16 @@ module Jackal
           payload.get(:data, :code_fetcher, :info, :name),
           payload.get(:data, :code_fetcher, :info, :commit_sha)
         ].join('-') + '.zip'
-        Dir.mktmpdir(asset_key.tr('/', '-')) do |_path|
+        _path = File.join(working_directory, Celluloid.uuid)
+        begin
           tmp_path = File.join(_path, asset_key)
           FileUtils.mkdir_p(tmp_path)
           FileUtils.cp_r(File.join(repository_path(payload), '.'), tmp_path)
           FileUtils.rm_rf(File.join(tmp_path, '.git'))
           tarball = asset_store.pack(tmp_path)
           asset_store.put(asset_key, tarball)
+        ensure
+          FileUtils.rm_rf(_path)
         end
         payload.set(:data, :code_fetcher, :asset, asset_key)
         true
