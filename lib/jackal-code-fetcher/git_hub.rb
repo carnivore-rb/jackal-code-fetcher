@@ -37,6 +37,7 @@ module Jackal
       def execute(message)
         failure_wrap(message) do |payload|
           retried = false
+          locked = lock_repo(payload)
           begin
             store_reference(payload)
           rescue Git::GitExecuteError => e
@@ -48,9 +49,35 @@ module Jackal
             else
               raise
             end
+          ensure
+            unlock_repo(locked)
           end
           job_completed(:code_fetcher, payload, message)
         end
+      end
+
+      # Lock repository via lock file
+      #
+      # @param payload[Smash]
+      # @return [File]
+      def lock_repo(payload)
+        lock_path = File.join(
+          working_directory,
+          "#{payload.get(:data, :code_fetcher, :info, :owner)}-" <<
+          "#{payload.get(:data, :code_fetcher, :info, :name)}.lock"
+        )
+        lock_file = File.open(lock_path, 'w')
+        lock_file.flock(File::LOCK_EX)
+        lock_file
+      end
+
+      # Unlock the repository via lock file
+      #
+      # @param lock_file [File]
+      # @return [File]
+      def unlock_repo(lock_file)
+        lock_file.close
+        lock_file
       end
 
       # Delete local repository path
