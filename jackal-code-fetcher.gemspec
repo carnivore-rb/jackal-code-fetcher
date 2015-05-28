@@ -12,5 +12,9 @@ Gem::Specification.new do |s|
   s.license = 'Apache 2.0'
   s.add_dependency 'jackal', '>= 0.3.4', '< 1.0.0'
   s.add_dependency 'git'
+
+  s.add_development_dependency 'carnivore-actor'
+  s.add_development_dependency 'jackal-assets'
+
   s.files = Dir['lib/**/*'] + %w(jackal-code-fetcher.gemspec README.md CHANGELOG.md CONTRIBUTING.md LICENSE)
 end
