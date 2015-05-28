@@ -1,5 +1,6 @@
 require 'git'
 require 'jackal-code-fetcher'
+require 'fileutils'
 
 describe Jackal::CodeFetcher::GitHub do
   ASSET_OWNER = 'jackal'
@@ -12,12 +13,15 @@ describe Jackal::CodeFetcher::GitHub do
     @config = Carnivore::Config.data.get(:jackal)
     @working_dir = @config.get(:code_fetcher, :config, :working_directory)
     @obj_store   = @config.get(:assets, :connection, :credentials, :object_store_root)
+    @bucket = @config.get(:assets, :bucket)
+    FileUtils.mkdir_p(@bucket)
   end
 
   after do
     @runner.terminate if @runner && @runner.alive?
     FileUtils.rm_rf(@working_dir)
     FileUtils.rm_rf(@obj_store)
+    FileUtils.rm_rf(@bucket)
   end
 
   let(:supervisor) do
