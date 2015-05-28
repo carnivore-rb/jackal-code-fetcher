@@ -11,10 +11,13 @@ asset. Configure:
 {
   "jackal": {
     "assets": {
-      "provider": PROVIDER,
-      "credentials": {
-        CREDENTIALS
-      }
+      "connection": {
+        "provider": PROVIDER,
+        "credentials": {
+          CREDENTIALS
+        }
+      },
+      "bucket": BUCKET_NAME
     }
   }
 }
