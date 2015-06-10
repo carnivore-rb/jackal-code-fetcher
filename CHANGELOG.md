@@ -1,3 +1,8 @@
+# v0.1.6
+* Update service registration
+* Add test coverage
+* Update asset creation to use glob and filter approach
+
 # v0.1.4
 * Add service registration
 
