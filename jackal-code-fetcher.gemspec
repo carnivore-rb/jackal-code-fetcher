@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.description = 'Code fetching helper'
   s.require_path = 'lib'
   s.license = 'Apache 2.0'
-  s.add_dependency 'jackal', '>= 0.3.4', '< 1.0.0'
+  s.add_dependency 'jackal', '>= 0.3.10', '< 1.0.0'
   s.add_dependency 'git'
 
   s.add_development_dependency 'carnivore-actor'
