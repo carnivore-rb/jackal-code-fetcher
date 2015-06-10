@@ -39,7 +39,10 @@ describe Jackal::CodeFetcher::GitHub do
         archive_path = Dir[File.join(@obj_store, bucket, '*.zip')].first
         [repo_path, archive_path].all? { |f| f && File.exists?(f) }
       end
-      source_wait(1, &exists_fn)
+      source_wait(10) do
+        !MessageStore.messages.empty?
+      end
+      MessageStore.messages.pop.wont_be_nil
       exists_fn.call.must_equal true
 
       # and that it contains proper data
@@ -54,12 +57,16 @@ describe Jackal::CodeFetcher::GitHub do
   private
 
   def payload(type = :commit)
-    h = {:code_fetcher => {
-           :info => {
-             :url   => 'https://github.com/carnivore-rb/jackal-code-fetcher.git',
-             :owner => ASSET_OWNER,
-             :name  => ASSET_NAME,
-             :commit_sha => COMMIT_SHA }}}
+    h = {
+      :code_fetcher => {
+        :info => {
+          :url   => 'https://github.com/carnivore-rb/jackal-code-fetcher.git',
+          :owner => ASSET_OWNER,
+          :name  => ASSET_NAME,
+          :commit_sha => COMMIT_SHA
+        }
+      }
+    }
     Jackal::Utils.new_payload('test', h)
   end
 
