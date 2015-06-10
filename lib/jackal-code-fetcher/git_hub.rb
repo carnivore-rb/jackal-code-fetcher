@@ -171,8 +171,25 @@ module Jackal
         begin
           tmp_path = File.join(_path, asset_key)
           FileUtils.mkdir_p(tmp_path)
-          FileUtils.cp_r(File.join(repository_path(payload), '.'), tmp_path)
-          FileUtils.rm_rf(File.join(tmp_path, '.git'))
+          origin_path = repository_path(payload)
+          files_to_copy = Dir.glob(
+            File.join(
+              origin_path,
+              '{.[^.]*,**}',
+              '**',
+              '{*,*.*,.*}'
+            )
+          )
+          files_to_copy = files_to_copy.map do |file_path|
+            next unless File.file?(file_path)
+            relative_path = file_path.sub("#{origin_path}/", '')
+            relative_path unless File.fnmatch('.git*', relative_path)
+          end.compact
+          files_to_copy.each do |relative_path|
+            new_path = File.join(tmp_path, relative_path)
+            FileUtils.mkdir_p(File.dirname(new_path))
+            FileUtils.cp(File.join(origin_path, relative_path), new_path)
+          end
           tarball = asset_store.pack(tmp_path)
           asset_store.put(asset_key, tarball)
         ensure
