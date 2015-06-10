@@ -13,7 +13,13 @@ Jackal.service(
   :description => 'Fetch code from remote source',
   :configuration => {
     :github__access_token => {
+      :type => :string,
       :description => 'GitHub access token to use for repository access'
+    },
+    :working_directory => {
+      :type => :string,
+      :description => 'Host working directory',
+      :public => false
     }
   }
 )
