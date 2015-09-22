@@ -1,3 +1,7 @@
+# v0.1.8
+* Always include assets dependency
+* Use common uuid from carnivore
+
 # v0.1.6
 * Update service registration
 * Add test coverage
