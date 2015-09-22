@@ -167,7 +167,7 @@ module Jackal
           payload.get(:data, :code_fetcher, :info, :name),
           payload.get(:data, :code_fetcher, :info, :commit_sha)
         ].join('-') + '.zip'
-        _path = File.join(working_directory, Celluloid.uuid)
+        _path = File.join(working_directory, Carnivore.uuid)
         begin
           tmp_path = File.join(_path, asset_key)
           FileUtils.mkdir_p(tmp_path)
