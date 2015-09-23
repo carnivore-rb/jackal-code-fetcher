@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.description = 'Code fetching helper'
   s.require_path = 'lib'
   s.license = 'Apache 2.0'
-  s.add_runtime_dependency 'jackal', '>= 1.0.0', '< 2.0'
+  s.add_runtime_dependency 'jackal', '>= 0.5.0', '< 1.0'
   s.add_runtime_dependency 'git'
   s.add_runtime_dependency 'jackal-assets'
 
