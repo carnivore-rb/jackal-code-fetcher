@@ -1,3 +1,6 @@
+# v0.1.10
+* Fix dependency constraints
+
 # v0.1.8
 * Always include assets dependency
 * Use common uuid from carnivore
